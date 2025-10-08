@@ -10,14 +10,18 @@ type Page = 'dashboard' | 'templates' | 'requests' | 'qa' | 'debug';
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
 
+  const handleNavigate = (page: string) => {
+    setCurrentPage(page as Page);
+  };
+
   const renderPage = () => {
     switch (currentPage) {
-      case 'dashboard': return <Dashboard onNavigate={setCurrentPage} />;
-      case 'templates': return <Templates onNavigate={setCurrentPage} />;
+      case 'dashboard': return <Dashboard onNavigate={handleNavigate} />;
+      case 'templates': return <Templates onNavigate={handleNavigate} />;
       case 'requests': return <Requests />;
       case 'qa': return <QA />;
       case 'debug': return <Debug />;
-      default: return <Dashboard onNavigate={setCurrentPage} />;
+      default: return <Dashboard onNavigate={handleNavigate} />;
     }
   };
 
