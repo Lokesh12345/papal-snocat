@@ -1,0 +1,9 @@
+{
+  "greeting": "Hello",
+  "payment_success": "Your payment was successful",
+  "payment_amount": "Amount",
+  "transaction_id": "Transaction ID",
+  "footer": "Thank you for using PayPal",
+  "unsubscribe": "Unsubscribe from emails",
+  "customer_support": "Need help? Contact support"
+}

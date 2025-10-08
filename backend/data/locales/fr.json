@@ -1,0 +1,7 @@
+{
+  "greeting": "Bonjour",
+  "payment_success": "Votre paiement a été effectué avec succès",
+  "payment_amount": "Montant",
+  "transaction_id": "ID de transaction",
+  "footer": "Merci d'utiliser PayPal"
+}

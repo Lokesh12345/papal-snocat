@@ -1,0 +1,60 @@
+{
+  "requests": [
+    {
+      "id": "REQ-1736950800000",
+      "brand": "venmo",
+      "title": "Security Alert Template",
+      "description": "New template for suspicious activity alerts",
+      "priority": "P0",
+      "status": "qa-review",
+      "templateId": null,
+      "createdAt": "2025-01-15T08:00:00.000Z",
+      "updatedAt": "2025-10-08T05:53:38.632Z"
+    },
+    {
+      "id": "REQ-1736954400000",
+      "brand": "paypal",
+      "title": "Payment Confirmation Update",
+      "description": "Update existing payment confirmation with new branding",
+      "priority": "P1",
+      "status": "localization",
+      "templateId": "payment-success",
+      "createdAt": "2025-01-14T10:00:00.000Z",
+      "updatedAt": "2025-01-15T09:00:00.000Z"
+    },
+    {
+      "id": "REQ-1736958000000",
+      "brand": "zettle",
+      "title": "Marketing Campaign Email",
+      "description": "Promotional email for new Zettle features",
+      "priority": "P2",
+      "status": "new",
+      "templateId": null,
+      "createdAt": "2025-01-15T14:00:00.000Z",
+      "updatedAt": "2025-01-15T14:00:00.000Z"
+    },
+    {
+      "id": "REQ-1736961600000",
+      "brand": "xoom",
+      "title": "Transfer Receipt",
+      "description": "Updated receipt template for international transfers",
+      "priority": "P1",
+      "status": "in-progress",
+      "templateId": null,
+      "createdAt": "2025-01-13T16:00:00.000Z",
+      "updatedAt": "2025-01-15T10:00:00.000Z"
+    },
+    {
+      "id": "REQ-1736965200000",
+      "brand": "paypal",
+      "title": "Password Reset Email",
+      "description": "Security update for password reset flow",
+      "priority": "P0",
+      "status": "deployed",
+      "templateId": "password-reset",
+      "createdAt": "2025-01-10T08:00:00.000Z",
+      "updatedAt": "2025-01-12T16:00:00.000Z",
+      "deployedAt": "2025-01-12T16:00:00.000Z"
+    }
+  ]
+}
