@@ -1,179 +1,128 @@
-# 💼 PayPal SNOCAT - System Notification Manager
+# PayPal SNOCAT - System Notification Manager
 
-A demonstration project aligned with PayPal's **Production Engineer – System Notifications (SNOCAT)** role.
+A demonstration project aligned with PayPal's Production Engineer role for System Notifications.
 
-## 🎯 What This Is
+## Overview
 
-A miniature version of PayPal's internal notification management system that handles:
-- ✅ Email & SMS template management
-- ✅ Multi-language localization (10+ languages)
-- ✅ Pre-production QA validation
-- ✅ Multi-brand support (PayPal, Venmo, Zettle, Xoom, Fastlane)
-- ✅ Production debugging simulation
-- ✅ Analytics & bottleneck analysis
+This is a full-stack notification management system that handles email and SMS templates across multiple brands (PayPal, Venmo, Zettle, Xoom, Fastlane). It demonstrates the complete workflow of a Production Engineer managing notification templates from creation through localization, validation, and deployment.
 
-## 🚀 Quick Start
+## Features
 
-### 1. Install Dependencies
+- Template management with dynamic placeholders
+- Multi-language localization support (10+ languages)
+- Automated QA validation with 5-stage quality checks
+- Request queue with priority management
+- Live template preview with test data
+- Production debugging tools
+- Analytics and bottleneck identification
+- Template-to-request linking
+
+## Quick Start
+
+### Installation
 
 ```bash
-# Backend
+# Install backend dependencies
 cd backend
 npm install
 
-# Frontend
+# Install frontend dependencies
 cd frontend
 npm install
 ```
 
-### 2. Start Backend
+### Running the Application
 
+Start the backend server:
 ```bash
 cd backend
 npm run dev
 ```
+Backend runs on http://localhost:3000
 
-API runs on: `http://localhost:3000`
-
-### 3. Start Frontend
-
+Start the frontend server:
 ```bash
 cd frontend
 npm run dev
 ```
+Frontend runs on http://localhost:5173
 
-UI runs on: `http://localhost:5173`
+Open your browser and navigate to http://localhost:5173
 
-### 4. Open Browser
+## Tech Stack
 
-Navigate to: `http://localhost:5173`
+**Frontend:** React 18, TypeScript, TailwindCSS, Vite
 
-## 📋 Features
+**Backend:** Node.js, Express
 
-### 🎨 Template Management
-- Create/edit notification templates with placeholders
-- Support for HTML and plain text formats
-- Version tracking
-- Multi-brand organization
+**Storage:** JSON files (file-based for demo, production-ready for database migration)
 
-### 🌍 Localization
-- Manage translations across 10 languages
-- Completeness checking
-- Side-by-side editing
+**API:** RESTful architecture
 
-### ✅ QA Validation
-- Automated quality checks before deployment
+## Project Structure
+
+```
+backend/
+  src/
+    routes/        - API endpoints
+    services/      - Business logic
+    utils/         - Helper functions
+  data/
+    templates/     - Template files by brand
+    locales/       - Language translation files
+    requests/      - Request queue data
+
+frontend/
+  src/
+    components/    - Reusable UI components
+    pages/         - Main application pages
+    services/      - API integration
+    types/         - TypeScript definitions
+```
+
+## Key Functionality
+
+### Template Management
+Create and edit notification templates with support for dynamic placeholders. Templates are versioned and organized by brand.
+
+### Localization
+Manage translations across multiple languages with completeness tracking. The system identifies missing translations and allows inline editing.
+
+### QA Validation
+Five automated checks before deployment:
 - Locale completeness verification
-- HTML structure validation
-- Link checking
+- Placeholder validation
+- HTML structure checking
+- Link validation
 - Brand compliance rules
 
-### 📊 Request Queue
-- Multi-brand request management
-- Priority levels (P0/P1/P2)
-- Status tracking pipeline
-- SLA monitoring
+### Request Queue
+Track template requests from product teams with priority levels (P0 Critical, P1 High, P2 Normal) and status tracking through the production pipeline.
 
-### 🔍 Preview Tool
-- Live template rendering
-- Multi-language preview
-- Test data injection
-- Device preview simulation
+### Analytics
+Monitor request volume, identify workflow bottlenecks, track cycle times, and analyze process efficiency.
 
-### 🐛 Debug Simulator
-- Live issue simulation
-- Diagnosis workflow
-- Quick-fix deployment
-
-### 📈 Analytics
-- Request volume tracking
-- Bottleneck identification
-- Cycle time metrics
-- Brand/priority breakdowns
-
-## 🛠️ Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Frontend | React 18 + TypeScript |
-| Build Tool | Vite |
-| Styling | TailwindCSS |
-| Backend | Node.js + Express |
-| Storage | JSON files |
-| API | RESTful |
-
-## 📁 Project Structure
+## API Endpoints
 
 ```
-paypa-snocat/
-├── backend/              # Node.js API
-│   ├── src/
-│   │   ├── routes/       # API endpoints
-│   │   ├── services/     # Business logic
-│   │   └── utils/        # Helpers
-│   └── data/             # JSON storage
-│       ├── templates/    # Templates by brand
-│       ├── locales/      # Language files
-│       └── requests/     # Request queue
-│
-├── frontend/             # React UI
-│   └── src/
-│       ├── components/   # Reusable UI
-│       ├── pages/        # Main screens
-│       ├── services/     # API calls
-│       └── types/        # TypeScript types
-│
-├── DEV_DOCS.md          # Detailed documentation
-└── README.md            # This file
+GET    /api/templates/:brand          - List templates
+POST   /api/templates/:brand          - Create template
+PUT    /api/templates/:brand/:id      - Update template
+GET    /api/locales                   - List locales
+PUT    /api/locales/:lang             - Update locale
+POST   /api/validation/validate       - Run QA validation
+GET    /api/requests                  - Get request queue
+PUT    /api/requests/:id              - Update request
+GET    /api/analytics                 - Get metrics
 ```
 
-## 🎬 Demo Navigation
+## Documentation
 
-1. **Dashboard** - System overview and quick actions
-2. **Templates** - Create and manage templates
-3. **Requests** - View and process request queue
-4. **QA** - Run validation checks and manage locales
-5. **Debug** - Simulate production issues and view analytics
+For detailed technical documentation and demo guide, see:
+- DEV_DOCS.md - Developer documentation
+- DEMO_GUIDE.md - Presentation walkthrough
+- PROJECT_STRUCTURE.md - Architecture details
 
-## 🔑 Key Endpoints
+## Purpose
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/templates/:brand` | GET | List templates |
-| `/api/templates/:brand` | POST | Create template |
-| `/api/templates/:brand/:id` | PUT | Update template |
-| `/api/locales` | GET | List all locales |
-| `/api/locales/:lang` | PUT | Update locale |
-| `/api/validation/validate` | POST | Run QA checks |
-| `/api/requests` | GET | Get request queue |
-| `/api/analytics` | GET | Get metrics |
-
-## 💡 Alignment with Job Role
-
-This project demonstrates:
-
-✅ **Template Production Pipeline** - End-to-end management
-✅ **Quality Assurance** - "Last line of defense" validation
-✅ **Multi-brand Operations** - PayPal ecosystem support
-✅ **Localization Management** - Global deployment readiness
-✅ **Issue Debugging** - Production problem-solving
-✅ **Process Optimization** - Bottleneck analysis
-✅ **React Development** - Component prototyping
-✅ **Automation** - Validation and workflow tools
-
-## 📖 Documentation
-
-For detailed documentation, see [DEV_DOCS.md](./DEV_DOCS.md)
-
-## 🎯 Purpose
-
-Built to showcase skills for PayPal's Production Engineer (System Notifications) role, demonstrating:
-- Technical implementation ability
-- Understanding of production workflows
-- Multi-brand complexity management
-- Quality-focused mindset
-- Problem-solving approach
-
----
-
-**Built with ❤️ for the PayPal SNOCAT team**
+This project demonstrates capabilities required for PayPal's Production Engineer role, including template lifecycle management, quality assurance, multi-brand operations, localization handling, debugging workflows, and process optimization.
