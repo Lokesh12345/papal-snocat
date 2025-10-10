@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react';
+import CodeMirror from '@uiw/react-codemirror';
+import { html } from '@codemirror/lang-html';
+import { oneDark } from '@codemirror/theme-one-dark';
 import type { Template, Brand, Request } from '../types';
 import { templateAPI, requestAPI } from '../services/api';
 
@@ -21,6 +24,7 @@ export default function TemplateEditor({ brand, template, onSave, onCancel }: Pr
 
   const [testEmail, setTestEmail] = useState('');
   const [emailStatus, setEmailStatus] = useState<{ type: 'success' | 'error' | '', message: string }>({ type: '', message: '' });
+  const [useCodeEditor, setUseCodeEditor] = useState(false);
 
   const [testData] = useState({
     'user.name': 'John Doe',
@@ -165,15 +169,36 @@ export default function TemplateEditor({ brand, template, onSave, onCancel }: Pr
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">HTML Body</label>
-              <textarea
-                value={formData.body}
-                onChange={(e) => setFormData({ ...formData, body: e.target.value })}
-                className="w-full border rounded px-3 py-2 font-mono text-sm"
-                rows={12}
-                placeholder="Use {{placeholders}} for dynamic content"
-                required
-              />
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium">HTML Body</label>
+                <button
+                  type="button"
+                  onClick={() => setUseCodeEditor(!useCodeEditor)}
+                  className="text-xs bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded"
+                >
+                  {useCodeEditor ? '📝 Simple Editor' : '💻 Code Editor'}
+                </button>
+              </div>
+
+              {useCodeEditor ? (
+                <CodeMirror
+                  value={formData.body}
+                  height="300px"
+                  theme={oneDark}
+                  extensions={[html()]}
+                  onChange={(value) => setFormData({ ...formData, body: value })}
+                  className="border rounded overflow-hidden"
+                />
+              ) : (
+                <textarea
+                  value={formData.body}
+                  onChange={(e) => setFormData({ ...formData, body: e.target.value })}
+                  className="w-full border rounded px-3 py-2 font-mono text-sm"
+                  rows={12}
+                  placeholder="Use {{placeholders}} for dynamic content"
+                  required
+                />
+              )}
             </div>
 
             <div>
