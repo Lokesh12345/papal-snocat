@@ -1,5 +1,6 @@
 import express from 'express';
 import * as templateService from '../services/templateService.js';
+import { sendTestEmail } from '../services/emailService.js';
 
 const router = express.Router();
 
@@ -46,6 +47,25 @@ router.delete('/:brand/:id', async (req, res) => {
   try {
     await templateService.deleteTemplate(req.params.brand, req.params.id);
     res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/:brand/:id/send-test', async (req, res) => {
+  try {
+    const template = await templateService.getTemplate(req.params.brand, req.params.id);
+    if (!template) {
+      return res.status(404).json({ error: 'Template not found' });
+    }
+
+    const { recipient } = req.body;
+    if (!recipient) {
+      return res.status(400).json({ error: 'Recipient email is required' });
+    }
+
+    const result = await sendTestEmail(template, recipient);
+    res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

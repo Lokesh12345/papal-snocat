@@ -19,6 +19,9 @@ export default function TemplateEditor({ brand, template, onSave, onCancel }: Pr
     text: template?.text || '',
   });
 
+  const [testEmail, setTestEmail] = useState('');
+  const [emailStatus, setEmailStatus] = useState<{ type: 'success' | 'error' | '', message: string }>({ type: '', message: '' });
+
   const [testData] = useState({
     'user.name': 'John Doe',
     'user.email': 'john@example.com',
@@ -84,6 +87,27 @@ export default function TemplateEditor({ brand, template, onSave, onCancel }: Pr
       rendered = rendered.replace(regex, value);
     });
     return rendered;
+  };
+
+  const handleSendTestEmail = async () => {
+    if (!template?.id) {
+      setEmailStatus({ type: 'error', message: 'Please save the template first before sending test email' });
+      return;
+    }
+
+    if (!testEmail) {
+      setEmailStatus({ type: 'error', message: 'Please enter a recipient email address' });
+      return;
+    }
+
+    try {
+      setEmailStatus({ type: '', message: 'Sending...' });
+      await templateAPI.sendTest(brand, template.id, testEmail);
+      setEmailStatus({ type: 'success', message: `Test email sent successfully to ${testEmail}!` });
+      setTimeout(() => setEmailStatus({ type: '', message: '' }), 5000);
+    } catch (error: any) {
+      setEmailStatus({ type: 'error', message: error.response?.data?.error || 'Failed to send email' });
+    }
   };
 
   return (
@@ -217,6 +241,36 @@ export default function TemplateEditor({ brand, template, onSave, onCancel }: Pr
                 <p>transaction.id = TXN-123456</p>
               </div>
             </div>
+
+            {template && (
+              <div className="bg-white border rounded p-4">
+                <h4 className="text-sm font-semibold mb-3">Send Test Email</h4>
+                <div className="space-y-2">
+                  <input
+                    type="email"
+                    value={testEmail}
+                    onChange={(e) => setTestEmail(e.target.value)}
+                    placeholder="recipient@example.com"
+                    className="w-full border rounded px-3 py-2 text-sm"
+                  />
+                  <button
+                    onClick={handleSendTestEmail}
+                    className="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm"
+                  >
+                    Send Test Email
+                  </button>
+                  {emailStatus.message && (
+                    <div className={`text-xs p-2 rounded ${
+                      emailStatus.type === 'success' ? 'bg-green-100 text-green-800' :
+                      emailStatus.type === 'error' ? 'bg-red-100 text-red-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {emailStatus.message}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

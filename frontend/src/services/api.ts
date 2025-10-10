@@ -16,6 +16,7 @@ export const templateAPI = {
   create: (brand: Brand, template: Partial<Template>) => api.post<Template>(`/templates/${brand}`, template),
   update: (brand: Brand, id: string, updates: Partial<Template>) => api.put<Template>(`/templates/${brand}/${id}`, updates),
   delete: (brand: Brand, id: string) => api.delete(`/templates/${brand}/${id}`),
+  sendTest: (brand: Brand, id: string, recipient: string) => api.post(`/templates/${brand}/${id}/send-test`, { recipient }),
 };
 
 export const localeAPI = {
