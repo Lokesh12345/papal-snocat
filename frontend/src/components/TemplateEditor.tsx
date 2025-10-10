@@ -25,6 +25,7 @@ export default function TemplateEditor({ brand, template, onSave, onCancel }: Pr
   const [testEmail, setTestEmail] = useState('');
   const [emailStatus, setEmailStatus] = useState<{ type: 'success' | 'error' | '', message: string }>({ type: '', message: '' });
   const [useCodeEditor, setUseCodeEditor] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const [testData] = useState({
     'user.name': 'John Doe',
@@ -92,6 +93,56 @@ export default function TemplateEditor({ brand, template, onSave, onCancel }: Pr
     });
     return rendered;
   };
+
+  const validateRealtime = (htmlBody: string, subject: string) => {
+    const errors: string[] = [];
+
+    // HTML validation
+    const openTags = htmlBody.match(/<(\w+)[^>]*>/g) || [];
+    const closeTags = htmlBody.match(/<\/(\w+)>/g) || [];
+    const selfClosing = ['img', 'br', 'hr', 'input', 'meta', 'link'];
+    const opens = openTags
+      .map(tag => tag.match(/<(\w+)/)![1])
+      .filter(tag => !selfClosing.includes(tag));
+    const closes = closeTags.map(tag => tag.match(/<\/(\w+)>/)![1]);
+
+    if (opens.length !== closes.length) {
+      errors.push('⚠️ HTML: Mismatched tags detected (unclosed elements)');
+    }
+
+    // Link validation
+    const links = htmlBody.match(/href=["']([^"']+)["']/g) || [];
+    const emptyLinks = links.filter(link => {
+      const url = link.match(/href=["']([^"']+)["']/)![1];
+      return !url || url === '#' || url === '';
+    });
+    if (emptyLinks.length > 0) {
+      errors.push(`⚠️ Links: ${emptyLinks.length} empty or invalid link(s) found`);
+    }
+
+    // Unsubscribe compliance
+    if (htmlBody.includes('<a') && !htmlBody.includes('{{unsubscribe_link}}')) {
+      errors.push('⚠️ Compliance: Missing {{unsubscribe_link}} placeholder');
+    }
+
+    // Placeholder validation
+    const bodyPlaceholders = htmlBody.match(/\{\{([^}]+)\}\}/g) || [];
+    const subjectPlaceholders = subject.match(/\{\{([^}]+)\}\}/g) || [];
+    const allPlaceholders = [...bodyPlaceholders, ...subjectPlaceholders];
+
+    if (allPlaceholders.length === 0) {
+      errors.push('ℹ️ Info: No placeholders detected (consider adding dynamic content)');
+    }
+
+    return errors;
+  };
+
+  useEffect(() => {
+    if (formData.body || formData.subject) {
+      const errors = validateRealtime(formData.body, formData.subject);
+      setValidationErrors(errors);
+    }
+  }, [formData.body, formData.subject]);
 
   const handleSendTestEmail = async () => {
     if (!template?.id) {
@@ -232,6 +283,29 @@ export default function TemplateEditor({ brand, template, onSave, onCancel }: Pr
 
         <div>
           <h3 className="text-lg font-semibold mb-3">Live Preview</h3>
+
+          {/* Real-time Validation Panel */}
+          <div className={`mb-4 border rounded-lg p-3 ${
+            validationErrors.length === 0
+              ? 'bg-green-50 border-green-300'
+              : 'bg-yellow-50 border-yellow-300'
+          }`}>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-sm font-semibold">
+                {validationErrors.length === 0 ? '✅ Validation Passed' : '⚡ Real-time Validation'}
+              </span>
+            </div>
+            {validationErrors.length === 0 ? (
+              <p className="text-xs text-green-700">No issues detected. Template is ready for deployment.</p>
+            ) : (
+              <div className="space-y-1">
+                {validationErrors.map((error, idx) => (
+                  <p key={idx} className="text-xs text-yellow-800">{error}</p>
+                ))}
+              </div>
+            )}
+          </div>
+
           <div className="space-y-4">
             <div>
               <p className="text-sm font-medium mb-2 text-gray-600">Subject:</p>

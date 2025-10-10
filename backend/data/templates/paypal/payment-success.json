@@ -3,7 +3,7 @@
   "name": "Payment Success Notification",
   "brand": "paypal",
   "subject": "Payment Confirmation email - {{transaction.id}}",
-  "body": "<html><body><h1>{{greeting}}, {{user.name}}!</h1><p>{{payment_success}}</p><p><strong>{{payment_amount}}:</strong> {{transaction.amount}}</p><p><strong>{{transaction_id}}:</strong> {{transaction.id}}</p><hr/><p><small>{{footer}}</small></p><p><a href='{{unsubscribe_link}}'>{{unsubscribe}} {{thank_you}}</a></p></body></html>",
+  "body": "<html>\n  <body>\n    <h1>{{greeting}}, {{user.name}}!</h1>\n    <p>{{payment_success}}</p>\n    <p><strong>{{payment_amount}}:</strong> {{transaction.amount}}</p>\n    <p><strong>{{transaction_id}}:</strong> {{transaction.id}}</p>\n    <hr/>\n    <p><small>{{footer}}</small></p>\n    <p><a href='{{unsubscribe_link}}'>{{unsubscribe}} {{thank_you}}</a></p>\n  </body>\n</html>",
   "text": "{{greeting}} {{user.name}}, {{payment_success}}. {{payment_amount}}: {{transaction.amount}}. {{transaction_id}}: {{transaction.id}}. {{footer}}",
   "placeholders": [
     "greeting",
@@ -19,6 +19,6 @@
     "thank_you"
   ],
   "createdAt": "2025-01-15T10:00:00.000Z",
-  "updatedAt": "2025-10-08T06:24:10.506Z",
-  "version": 3
+  "updatedAt": "2025-10-10T03:48:57.166Z",
+  "version": 4
 }
