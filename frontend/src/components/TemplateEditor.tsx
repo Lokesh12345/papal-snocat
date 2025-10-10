@@ -332,70 +332,76 @@ export default function TemplateEditor({ brand, template, onSave, onCancel }: Pr
             )}
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <p className="text-sm font-medium mb-2 text-gray-600">Subject:</p>
-              <div className="bg-gray-50 border rounded px-3 py-2">
-                {formData.subject ? renderPreview(formData.subject) : <span className="text-gray-400">Subject will appear here...</span>}
-              </div>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium mb-2 text-gray-600">HTML Preview:</p>
-              <div
-                className="border rounded p-4 bg-white min-h-[300px] overflow-auto"
-                style={{ maxHeight: '500px' }}
-                dangerouslySetInnerHTML={{
-                  __html: formData.body ? renderPreview(formData.body) : '<p class="text-gray-400">HTML preview will appear here...</p>'
-                }}
-              />
-            </div>
-
-            <div>
-              <p className="text-sm font-medium mb-2 text-gray-600">Plain Text:</p>
-              <div className="bg-gray-50 border rounded p-3 whitespace-pre-wrap font-mono text-sm overflow-auto" style={{ maxHeight: '200px' }}>
-                {formData.text ? renderPreview(formData.text) : <span className="text-gray-400 not-italic font-sans">Plain text preview will appear here...</span>}
-              </div>
-            </div>
-
-            <div className="bg-blue-50 border-l-4 border-blue-400 p-3">
-              <p className="text-sm font-semibold mb-1">Test Data Used:</p>
-              <div className="text-xs text-gray-700 space-y-1">
-                <p>user.name = John Doe</p>
-                <p>transaction.amount = $50.00</p>
-                <p>transaction.id = TXN-123456</p>
-              </div>
-            </div>
-
-            {template && (
-              <div className="bg-white border rounded p-4">
-                <h4 className="text-sm font-semibold mb-3">Send Test Email</h4>
-                <div className="space-y-2">
-                  <input
-                    type="email"
-                    value={testEmail}
-                    onChange={(e) => setTestEmail(e.target.value)}
-                    placeholder="recipient@example.com"
-                    className="w-full border rounded px-3 py-2 text-sm"
-                  />
-                  <button
-                    onClick={handleSendTestEmail}
-                    className="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm"
-                  >
-                    Send Test Email
-                  </button>
-                  {emailStatus.message && (
-                    <div className={`text-xs p-2 rounded ${
-                      emailStatus.type === 'success' ? 'bg-green-100 text-green-800' :
-                      emailStatus.type === 'error' ? 'bg-red-100 text-red-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {emailStatus.message}
-                    </div>
-                  )}
+          <div className="grid grid-cols-2 gap-4">
+            {/* Left Column */}
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm font-medium mb-2 text-gray-600">Subject:</p>
+                <div className="bg-gray-50 border rounded px-3 py-2 text-sm">
+                  {formData.subject ? renderPreview(formData.subject) : <span className="text-gray-400">Subject will appear here...</span>}
                 </div>
               </div>
-            )}
+
+              <div>
+                <p className="text-sm font-medium mb-2 text-gray-600">HTML Preview:</p>
+                <div
+                  className="border rounded p-4 bg-white overflow-auto text-sm"
+                  style={{ height: '400px' }}
+                  dangerouslySetInnerHTML={{
+                    __html: formData.body ? renderPreview(formData.body) : '<p class="text-gray-400">HTML preview will appear here...</p>'
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Right Column */}
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm font-medium mb-2 text-gray-600">Plain Text:</p>
+                <div className="bg-gray-50 border rounded p-3 whitespace-pre-wrap font-mono text-xs overflow-auto" style={{ height: '200px' }}>
+                  {formData.text ? renderPreview(formData.text) : <span className="text-gray-400 not-italic font-sans">Plain text preview will appear here...</span>}
+                </div>
+              </div>
+
+              <div className="bg-blue-50 border-l-4 border-blue-400 p-3">
+                <p className="text-sm font-semibold mb-1">Test Data Used:</p>
+                <div className="text-xs text-gray-700 space-y-1">
+                  <p>user.name = John Doe</p>
+                  <p>transaction.amount = $50.00</p>
+                  <p>transaction.id = TXN-123456</p>
+                </div>
+              </div>
+
+              {template && (
+                <div className="bg-white border rounded p-4">
+                  <h4 className="text-sm font-semibold mb-3">Send Test Email</h4>
+                  <div className="space-y-2">
+                    <input
+                      type="email"
+                      value={testEmail}
+                      onChange={(e) => setTestEmail(e.target.value)}
+                      placeholder="recipient@example.com"
+                      className="w-full border rounded px-3 py-2 text-sm"
+                    />
+                    <button
+                      onClick={handleSendTestEmail}
+                      className="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm"
+                    >
+                      Send Test Email
+                    </button>
+                    {emailStatus.message && (
+                      <div className={`text-xs p-2 rounded ${
+                        emailStatus.type === 'success' ? 'bg-green-100 text-green-800' :
+                        emailStatus.type === 'error' ? 'bg-red-100 text-red-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {emailStatus.message}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
