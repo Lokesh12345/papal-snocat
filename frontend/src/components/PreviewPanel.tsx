@@ -86,98 +86,105 @@ export default function PreviewPanel({ template, onNavigateToLocales }: Props) {
         </select>
       </div>
 
-      <div className="mb-4">
-        <h3 className="font-semibold mb-2">Test Data</h3>
-        <div className="space-y-1 text-sm">
-          {Object.entries(testData).map(([key, value]) => (
-            <div key={key} className="flex gap-2">
-              <span className="text-gray-600 w-40">{key}:</span>
-              <input
-                type="text"
-                value={value}
-                onChange={(e) => setTestData({ ...testData, [key]: e.target.value })}
-                className="border rounded px-2 py-1 flex-1 text-sm"
-              />
+      <div className="grid grid-cols-2 gap-6">
+        {/* Left Column */}
+        <div className="space-y-4">
+          <div>
+            <h3 className="font-semibold mb-2">Test Data</h3>
+            <div className="space-y-1 text-sm">
+              {Object.entries(testData).map(([key, value]) => (
+                <div key={key} className="flex gap-2">
+                  <span className="text-gray-600 w-40 text-xs">{key}:</span>
+                  <input
+                    type="text"
+                    value={value}
+                    onChange={(e) => setTestData({ ...testData, [key]: e.target.value })}
+                    className="border rounded px-2 py-1 flex-1 text-xs"
+                  />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="mb-4 border rounded-lg overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-50 to-blue-100 border-b px-4 py-3 flex justify-between items-center">
-          <h3 className="font-semibold text-sm">Template Locale Keys Status ({locale.toUpperCase()})</h3>
-          {onNavigateToLocales && getLocaleStatus().missing.length > 0 && (
-            <button
-              onClick={onNavigateToLocales}
-              className="bg-blue-600 text-white text-xs px-3 py-1 rounded hover:bg-blue-700"
-            >
-              → Add Missing Keys
-            </button>
-          )}
-        </div>
-        <div className="p-4">
-          <div className="space-y-3">
-            {getLocaleStatus().found.length > 0 && (
-              <div>
-                <p className="text-xs font-semibold text-green-700 mb-2">
-                  ✓ Found ({getLocaleStatus().found.length})
-                </p>
-                <div className="space-y-1">
-                  {getLocaleStatus().found.map(key => (
-                    <div key={key} className="bg-green-50 border-l-4 border-green-400 p-2 text-xs">
-                      <code className="text-green-700 font-semibold">{'{{' + key + '}}'}</code>
-                      <span className="text-gray-600 mx-2">=</span>
-                      <span className="text-green-800">{localeData[key]}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {getLocaleStatus().missing.length > 0 && (
-              <div>
-                <p className="text-xs font-semibold text-red-700 mb-2">
-                  ✗ Missing ({getLocaleStatus().missing.length})
-                </p>
-                <div className="space-y-1">
-                  {getLocaleStatus().missing.map(key => (
-                    <div key={key} className="bg-red-50 border-l-4 border-red-400 p-2 text-xs">
-                      <code className="text-red-700 font-semibold">{'{{' + key + '}}'}</code>
-                      <span className="text-gray-600 mx-2">-</span>
-                      <span className="text-red-600 italic">Not found in {locale}.json</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {getLocaleStatus().found.length === 0 && getLocaleStatus().missing.length === 0 && (
-              <p className="text-gray-500 italic text-sm">No locale keys used in this template</p>
-            )}
           </div>
-        </div>
-      </div>
 
-      <div className="border-t pt-4">
-        <div className="mb-4">
-          <h3 className="font-semibold mb-2">Subject:</h3>
-          <div className="bg-gray-50 p-3 rounded">
-            {renderTemplate(template.subject)}
+          <div className="border rounded-lg overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-50 to-blue-100 border-b px-4 py-3 flex justify-between items-center">
+              <h3 className="font-semibold text-sm">Locale Keys ({locale.toUpperCase()})</h3>
+              {onNavigateToLocales && getLocaleStatus().missing.length > 0 && (
+                <button
+                  onClick={onNavigateToLocales}
+                  className="bg-blue-600 text-white text-xs px-3 py-1 rounded hover:bg-blue-700"
+                >
+                  → Add Missing
+                </button>
+              )}
+            </div>
+            <div className="p-3 max-h-96 overflow-y-auto">
+              <div className="space-y-2">
+                {getLocaleStatus().found.length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-green-700 mb-1">
+                      ✓ Found ({getLocaleStatus().found.length})
+                    </p>
+                    <div className="space-y-1">
+                      {getLocaleStatus().found.map(key => (
+                        <div key={key} className="bg-green-50 border-l-4 border-green-400 p-2 text-xs">
+                          <code className="text-green-700 font-semibold">{'{{' + key + '}}'}</code>
+                          <span className="text-gray-600 mx-1">=</span>
+                          <span className="text-green-800">{localeData[key]}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {getLocaleStatus().missing.length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-red-700 mb-1">
+                      ✗ Missing ({getLocaleStatus().missing.length})
+                    </p>
+                    <div className="space-y-1">
+                      {getLocaleStatus().missing.map(key => (
+                        <div key={key} className="bg-red-50 border-l-4 border-red-400 p-2 text-xs">
+                          <code className="text-red-700 font-semibold">{'{{' + key + '}}'}</code>
+                          <span className="text-gray-600 mx-1">-</span>
+                          <span className="text-red-600 italic text-xs">Not found</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {getLocaleStatus().found.length === 0 && getLocaleStatus().missing.length === 0 && (
+                  <p className="text-gray-500 italic text-xs">No locale keys used</p>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="mb-4">
-          <h3 className="font-semibold mb-2">HTML Preview:</h3>
-          <div
-            className="border p-4 bg-white rounded min-h-[300px]"
-            dangerouslySetInnerHTML={{ __html: renderTemplate(template.body) }}
-          />
-        </div>
+        {/* Right Column */}
+        <div className="space-y-4">
+          <div>
+            <h3 className="font-semibold mb-2">Subject:</h3>
+            <div className="bg-gray-50 p-3 rounded text-sm">
+              {renderTemplate(template.subject)}
+            </div>
+          </div>
 
-        <div>
-          <h3 className="font-semibold mb-2">Plain Text:</h3>
-          <div className="bg-gray-50 p-3 rounded whitespace-pre-wrap font-mono text-sm">
-            {renderTemplate(template.text)}
+          <div>
+            <h3 className="font-semibold mb-2">HTML Preview:</h3>
+            <div
+              className="border p-4 bg-white rounded overflow-auto text-sm"
+              style={{ height: '400px' }}
+              dangerouslySetInnerHTML={{ __html: renderTemplate(template.body) }}
+            />
+          </div>
+
+          <div>
+            <h3 className="font-semibold mb-2">Plain Text:</h3>
+            <div className="bg-gray-50 p-3 rounded whitespace-pre-wrap font-mono text-xs overflow-auto" style={{ maxHeight: '150px' }}>
+              {renderTemplate(template.text)}
+            </div>
           </div>
         </div>
       </div>
