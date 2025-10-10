@@ -1,0 +1,16 @@
+[
+  {
+    "id": "login_button",
+    "name": "Login Button",
+    "description": "Red login button",
+    "html": "<button style=\"background-color: #0070ba; color: white; padding: 12px 24px; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer;\">Log In</button>",
+    "createdAt": "2025-01-10T00:00:00.000Z"
+  },
+  {
+    "id": "paypal_footer",
+    "name": "PayPal Footer",
+    "description": "Standard email footer with links",
+    "html": "<div style=\"background-color: #f5f7fa; padding: 20px; text-align: center; font-size: 12px; color: #6c7378;\">\n  <p>Questions? Visit our <a href=\"https://paypal.com/help\" style=\"color: #0070ba;\">Help Center</a></p>\n  <p>PayPal Inc. • 2211 North First Street • San Jose, CA 95131</p>\n  <p><a href=\"{{unsubscribe_link}}\" style=\"color: #0070ba;\">Unsubscribe</a></p>\n</div>",
+    "createdAt": "2025-01-10T00:00:00.000Z"
+  }
+]

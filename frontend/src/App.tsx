@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import Dashboard from './pages/Dashboard';
 import Templates from './pages/Templates';
+import Components from './pages/Components';
+import SMS from './pages/SMS';
 import Requests from './pages/Requests';
 import QA from './pages/QA';
 import Debug from './pages/Debug';
 
-type Page = 'dashboard' | 'templates' | 'requests' | 'qa' | 'debug';
+type Page = 'dashboard' | 'templates' | 'components' | 'sms' | 'requests' | 'qa' | 'debug';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
@@ -18,6 +20,8 @@ function App() {
     switch (currentPage) {
       case 'dashboard': return <Dashboard onNavigate={handleNavigate} />;
       case 'templates': return <Templates onNavigate={handleNavigate} />;
+      case 'components': return <Components />;
+      case 'sms': return <SMS />;
       case 'requests': return <Requests />;
       case 'qa': return <QA />;
       case 'debug': return <Debug />;
@@ -42,6 +46,18 @@ function App() {
               className={`px-3 py-2 rounded ${currentPage === 'templates' ? 'bg-blue-700' : 'hover:bg-blue-800'}`}
             >
               Templates
+            </button>
+            <button
+              onClick={() => setCurrentPage('components')}
+              className={`px-3 py-2 rounded ${currentPage === 'components' ? 'bg-blue-700' : 'hover:bg-blue-800'}`}
+            >
+              Components
+            </button>
+            <button
+              onClick={() => setCurrentPage('sms')}
+              className={`px-3 py-2 rounded ${currentPage === 'sms' ? 'bg-blue-700' : 'hover:bg-blue-800'}`}
+            >
+              SMS
             </button>
             <button
               onClick={() => setCurrentPage('requests')}

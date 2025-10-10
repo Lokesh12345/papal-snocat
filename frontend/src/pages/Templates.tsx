@@ -157,7 +157,7 @@ export default function Templates({ onNavigate }: Props) {
                                 >
                                   <span className="font-semibold uppercase">{lang.lang}</span>
                                   <span>
-                                    {lang.percentage === 100 ? '✓' : `${lang.found}/${lang.total}`}
+                                    {lang.percentage === 100 ? 'OK' : `${lang.found}/${lang.total}`}
                                   </span>
                                   {lang.percentage !== 100 && (
                                     <span className="text-[10px]">({lang.percentage}%)</span>

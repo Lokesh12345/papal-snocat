@@ -82,7 +82,7 @@ export default function Analytics() {
       </div>
 
       <div className="mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-400">
-        <h3 className="font-semibold mb-2">⚠️ Bottleneck Analysis</h3>
+        <h3 className="font-semibold mb-2">Bottleneck Analysis</h3>
         <p className="text-sm text-gray-700">
           The <strong className="capitalize">{data.bottleneck}</strong> stage is currently the slowest.
           Consider allocating more resources or streamlining this process.

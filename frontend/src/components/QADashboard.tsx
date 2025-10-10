@@ -60,13 +60,13 @@ export default function QADashboard({ template }: Props) {
               Overall Status: {result.status.toUpperCase()}
             </h3>
             {result.status === 'fail' && (
-              <p className="text-sm mt-1">⚠️ Template BLOCKED from deployment</p>
+              <p className="text-sm mt-1">Template BLOCKED from deployment</p>
             )}
             {result.status === 'warning' && (
-              <p className="text-sm mt-1">⚠️ Review warnings before deployment</p>
+              <p className="text-sm mt-1">Review warnings before deployment</p>
             )}
             {result.status === 'pass' && (
-              <p className="text-sm mt-1">✅ Ready for deployment</p>
+              <p className="text-sm mt-1">Ready for deployment</p>
             )}
           </div>
 

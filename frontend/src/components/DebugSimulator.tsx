@@ -66,7 +66,7 @@ export default function DebugSimulator() {
           <div key={issue.id} className="border-2 border-red-200 rounded p-4">
             <div className="flex justify-between items-start mb-3">
               <div>
-                <h3 className="font-bold text-lg text-red-700">🔴 {issue.title}</h3>
+                <h3 className="font-bold text-lg text-red-700"> {issue.title}</h3>
                 <p className="text-sm text-gray-600">Reported: 5 minutes ago</p>
               </div>
               <span className={`px-3 py-1 rounded text-sm font-semibold ${getStatusColor(issue.status)}`}>
@@ -122,7 +122,7 @@ export default function DebugSimulator() {
               )}
               {issue.status === 'fixed' && (
                 <span className="text-green-600 text-sm font-semibold">
-                  ✅ Issue Resolved
+                  Issue Resolved
                 </span>
               )}
             </div>

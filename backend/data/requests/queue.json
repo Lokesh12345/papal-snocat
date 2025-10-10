@@ -20,7 +20,8 @@
       "status": "localization",
       "templateId": "payment-success",
       "createdAt": "2025-01-14T10:00:00.000Z",
-      "updatedAt": "2025-10-10T03:48:57.174Z"
+      "updatedAt": "2025-10-10T11:22:35.463Z",
+      "smsId": "sms-001"
     },
     {
       "id": "REQ-1736958000000",

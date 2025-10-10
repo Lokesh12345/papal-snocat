@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import type { Template } from '../types';
-import { localeAPI } from '../services/api';
+import type { Template, Component } from '../types';
+import { localeAPI, componentAPI } from '../services/api';
 
 interface Props {
   template: Template;
@@ -10,9 +10,10 @@ interface Props {
 export default function PreviewPanel({ template, onNavigateToLocales }: Props) {
   const [locale, setLocale] = useState('en');
   const [localeData, setLocaleData] = useState<Record<string, string>>({});
+  const [components, setComponents] = useState<Component[]>([]);
   const [testData, setTestData] = useState({
-    'user.name': 'John Doe',
-    'user.email': 'john@example.com',
+    'user.name': 'lokesh',
+    'user.email': 'lloke63@gmail.com',
     'transaction.amount': '$50.00',
     'transaction.id': 'TXN-123456',
     'unsubscribe_link': 'https://paypal.com/unsubscribe'
@@ -20,6 +21,7 @@ export default function PreviewPanel({ template, onNavigateToLocales }: Props) {
 
   useEffect(() => {
     loadLocale(locale);
+    loadComponents();
   }, [locale]);
 
   const loadLocale = async (lang: string) => {
@@ -28,6 +30,16 @@ export default function PreviewPanel({ template, onNavigateToLocales }: Props) {
       setLocaleData(response.data || {});
     } catch (error) {
       setLocaleData({});
+    }
+  };
+
+  const loadComponents = async () => {
+    try {
+      const response = await componentAPI.getAll();
+      setComponents(response.data);
+    } catch (error) {
+      console.error('Error loading components:', error);
+      setComponents([]);
     }
   };
 
@@ -56,11 +68,19 @@ export default function PreviewPanel({ template, onNavigateToLocales }: Props) {
   const renderTemplate = (text: string) => {
     let rendered = text;
 
+    // Replace component shortcodes first (format: {{temp.component_name}})
+    components.forEach(component => {
+      const regex = new RegExp(`\\{\\{temp\\.${component.id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\}\\}`, 'g');
+      rendered = rendered.replace(regex, component.html);
+    });
+
+    // Replace locale data
     Object.entries(localeData).forEach(([key, value]) => {
       const regex = new RegExp(`\\{\\{${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\}\\}`, 'g');
       rendered = rendered.replace(regex, value);
     });
 
+    // Replace test data placeholders
     Object.entries(testData).forEach(([key, value]) => {
       const regex = new RegExp(`\\{\\{${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\}\\}`, 'g');
       rendered = rendered.replace(regex, value);
@@ -123,7 +143,7 @@ export default function PreviewPanel({ template, onNavigateToLocales }: Props) {
                 {getLocaleStatus().found.length > 0 && (
                   <div>
                     <p className="text-xs font-semibold text-green-700 mb-1">
-                      ✓ Found ({getLocaleStatus().found.length})
+                      Found ({getLocaleStatus().found.length})
                     </p>
                     <div className="space-y-1">
                       {getLocaleStatus().found.map(key => (
@@ -140,7 +160,7 @@ export default function PreviewPanel({ template, onNavigateToLocales }: Props) {
                 {getLocaleStatus().missing.length > 0 && (
                   <div>
                     <p className="text-xs font-semibold text-red-700 mb-1">
-                      ✗ Missing ({getLocaleStatus().missing.length})
+                      Missing ({getLocaleStatus().missing.length})
                     </p>
                     <div className="space-y-1">
                       {getLocaleStatus().missing.map(key => (

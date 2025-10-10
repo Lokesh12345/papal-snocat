@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import CodeMirror from '@uiw/react-codemirror';
 import { html } from '@codemirror/lang-html';
 import { oneDark } from '@codemirror/theme-one-dark';
-import type { Template, Brand, Request } from '../types';
-import { templateAPI, requestAPI, localeAPI } from '../services/api';
+import type { Template, Brand, Request, Component } from '../types';
+import { templateAPI, requestAPI, localeAPI, componentAPI } from '../services/api';
 
 interface Props {
   brand: Brand;
@@ -16,6 +16,7 @@ export default function TemplateEditor({ brand, template, onSave, onCancel }: Pr
   const [requests, setRequests] = useState<Request[]>([]);
   const [selectedRequestId, setSelectedRequestId] = useState<string>('');
   const [localeData, setLocaleData] = useState<Record<string, string>>({});
+  const [components, setComponents] = useState<Component[]>([]);
   const [formData, setFormData] = useState({
     name: template?.name || '',
     subject: template?.subject || '',
@@ -29,8 +30,8 @@ export default function TemplateEditor({ brand, template, onSave, onCancel }: Pr
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const [testData] = useState({
-    'user.name': 'John Doe',
-    'user.email': 'john@example.com',
+    'user.name': 'lokesh',
+    'user.email': 'lloke63@gmail.com',
     'transaction.amount': '$50.00',
     'transaction.id': 'TXN-123456',
     'unsubscribe_link': 'https://paypal.com/unsubscribe',
@@ -46,6 +47,7 @@ export default function TemplateEditor({ brand, template, onSave, onCancel }: Pr
   useEffect(() => {
     loadRequests();
     loadLocaleData();
+    loadComponents();
   }, [brand]);
 
   const loadRequests = async () => {
@@ -74,6 +76,15 @@ export default function TemplateEditor({ brand, template, onSave, onCancel }: Pr
     }
   };
 
+  const loadComponents = async () => {
+    try {
+      const response = await componentAPI.getAll();
+      setComponents(response.data);
+    } catch (error) {
+      console.error('Error loading components:', error);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -98,10 +109,19 @@ export default function TemplateEditor({ brand, template, onSave, onCancel }: Pr
 
   const renderPreview = (text: string) => {
     let rendered = text;
+
+    // Replace component shortcodes first (format: {{temp.component_name}})
+    components.forEach(component => {
+      const regex = new RegExp(`\\{\\{temp\\.${component.id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\}\\}`, 'g');
+      rendered = rendered.replace(regex, component.html);
+    });
+
+    // Then replace test data placeholders
     Object.entries(testData).forEach(([key, value]) => {
       const regex = new RegExp(`\\{\\{${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\}\\}`, 'g');
       rendered = rendered.replace(regex, value);
     });
+
     return rendered;
   };
 
@@ -118,7 +138,7 @@ export default function TemplateEditor({ brand, template, onSave, onCancel }: Pr
     const closes = closeTags.map(tag => tag.match(/<\/(\w+)>/)![1]);
 
     if (opens.length !== closes.length) {
-      errors.push('⚠️ HTML: Mismatched tags detected (unclosed elements)');
+      errors.push('HTML: Mismatched tags detected (unclosed elements)');
     }
 
     // Link validation
@@ -128,15 +148,31 @@ export default function TemplateEditor({ brand, template, onSave, onCancel }: Pr
       return !url || url === '#' || url === '';
     });
     if (emptyLinks.length > 0) {
-      errors.push(`⚠️ Links: ${emptyLinks.length} empty or invalid link(s) found`);
+      errors.push(`Links: ${emptyLinks.length} empty or invalid link(s) found`);
     }
 
     // Unsubscribe compliance
     if (htmlBody.includes('<a') && !htmlBody.includes('{{unsubscribe_link}}')) {
-      errors.push('⚠️ Compliance: Missing {{unsubscribe_link}} placeholder');
+      errors.push('Compliance: Missing {{unsubscribe_link}} placeholder');
     }
 
-    // Localization validation - check for missing locale keys
+    // Component validation - check if component shortcodes exist
+    const componentPlaceholders = [...htmlBody.matchAll(/\{\{temp\.([^}]+)\}\}/g)];
+    const missingComponents: string[] = [];
+
+    componentPlaceholders.forEach(match => {
+      const componentId = match[1];
+      const componentExists = components.some(c => c.id === componentId);
+      if (!componentExists) {
+        missingComponents.push(componentId);
+      }
+    });
+
+    if (missingComponents.length > 0) {
+      errors.push(`Components: ${missingComponents.length} missing component(s): ${missingComponents.map(c => `{{temp.${c}}}`).join(', ')}`);
+    }
+
+    // Localization validation - check for missing locale keys (excluding components and dynamic data)
     const bodyPlaceholders = htmlBody.match(/\{\{([^}]+)\}\}/g) || [];
     const subjectPlaceholders = subject.match(/\{\{([^}]+)\}\}/g) || [];
     const allPlaceholders = [...bodyPlaceholders, ...subjectPlaceholders];
@@ -146,18 +182,18 @@ export default function TemplateEditor({ brand, template, onSave, onCancel }: Pr
 
     allPlaceholders.forEach(placeholder => {
       const key = placeholder.replace(/\{\{|\}\}/g, '').trim();
-      // Skip dynamic data keys, only check locale keys
-      if (!dynamicKeys.includes(key) && !localeData[key]) {
+      // Skip component keys (temp.*), dynamic data keys, only check locale keys
+      if (!key.startsWith('temp.') && !dynamicKeys.includes(key) && !localeData[key]) {
         missingLocaleKeys.push(key);
       }
     });
 
     if (missingLocaleKeys.length > 0) {
-      errors.push(`⚠️ Localization: ${missingLocaleKeys.length} missing locale key(s): ${missingLocaleKeys.join(', ')}`);
+      errors.push(`Localization: ${missingLocaleKeys.length} missing locale key(s): ${missingLocaleKeys.join(', ')}`);
     }
 
     if (allPlaceholders.length === 0) {
-      errors.push('ℹ️ Info: No placeholders detected (consider adding dynamic content)');
+      errors.push('Info: No placeholders detected (consider adding dynamic content)');
     }
 
     return errors;
@@ -217,7 +253,7 @@ export default function TemplateEditor({ brand, template, onSave, onCancel }: Pr
               </select>
               {selectedRequestId && (
                 <p className="text-xs text-gray-600 mt-1">
-                  ✓ This template will be linked to the selected request
+                  This template will be linked to the selected request
                 </p>
               )}
             </div>
@@ -248,13 +284,32 @@ export default function TemplateEditor({ brand, template, onSave, onCancel }: Pr
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label className="block text-sm font-medium">HTML Body</label>
-                <button
-                  type="button"
-                  onClick={() => setUseCodeEditor(!useCodeEditor)}
-                  className="text-xs bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded"
-                >
-                  {useCodeEditor ? '📝 Simple Editor' : '💻 Code Editor'}
-                </button>
+                <div className="flex gap-2">
+                  {components.length > 0 && (
+                    <select
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          const shortcode = `{{temp.${e.target.value}}}`;
+                          setFormData({ ...formData, body: formData.body + shortcode });
+                          e.target.value = '';
+                        }
+                      }}
+                      className="text-xs border rounded px-2 py-1"
+                    >
+                      <option value="">+ Insert Component</option>
+                      {components.map(comp => (
+                        <option key={comp.id} value={comp.id}>{comp.name}</option>
+                      ))}
+                    </select>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setUseCodeEditor(!useCodeEditor)}
+                    className="text-xs bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded"
+                  >
+                    {useCodeEditor ? 'Simple Editor' : 'Code Editor'}
+                  </button>
+                </div>
               </div>
 
               {useCodeEditor ? (
@@ -318,7 +373,7 @@ export default function TemplateEditor({ brand, template, onSave, onCancel }: Pr
           }`}>
             <div className="flex items-center gap-2 mb-2">
               <span className="text-sm font-semibold">
-                {validationErrors.length === 0 ? '✅ Validation Passed' : '⚡ Real-time Validation'}
+                {validationErrors.length === 0 ? 'Validation Passed' : 'Real-time Validation'}
               </span>
             </div>
             {validationErrors.length === 0 ? (
@@ -361,7 +416,7 @@ export default function TemplateEditor({ brand, template, onSave, onCancel }: Pr
             <div className="bg-blue-50 border-l-4 border-blue-400 p-3">
               <p className="text-sm font-semibold mb-1">Test Data Used:</p>
               <div className="text-xs text-gray-700 space-y-1">
-                <p>user.name = John Doe</p>
+                <p>user.name = lokesh</p>
                 <p>transaction.amount = $50.00</p>
                 <p>transaction.id = TXN-123456</p>
               </div>

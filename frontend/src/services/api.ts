@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Template, Locale, ValidationResult, Request, Analytics, Brand } from '../types';
+import type { Template, Locale, ValidationResult, Request, Analytics, Brand, Component, SMS } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
@@ -39,4 +39,20 @@ export const requestAPI = {
 
 export const analyticsAPI = {
   get: () => api.get<Analytics>('/analytics'),
+};
+
+export const componentAPI = {
+  getAll: () => api.get<Component[]>('/components'),
+  getOne: (id: string) => api.get<Component>(`/components/${id}`),
+  create: (component: Partial<Component>) => api.post<Component>('/components', component),
+  update: (id: string, updates: Partial<Component>) => api.put<Component>(`/components/${id}`, updates),
+  delete: (id: string) => api.delete(`/components/${id}`),
+};
+
+export const smsAPI = {
+  getAll: (brand?: Brand) => api.get<SMS[]>('/sms', { params: { brand } }),
+  getOne: (id: string) => api.get<SMS>(`/sms/${id}`),
+  create: (sms: Partial<SMS>) => api.post<SMS>('/sms', sms),
+  update: (id: string, updates: Partial<SMS>) => api.put<SMS>(`/sms/${id}`, updates),
+  delete: (id: string) => api.delete(`/sms/${id}`),
 };

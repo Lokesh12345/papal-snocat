@@ -1,0 +1,30 @@
+[
+  {
+    "id": "sms-001",
+    "name": "Payment Received",
+    "brand": "paypal",
+    "message": "{{greeting}}! You received {{transaction.amount}} from {{user.name}}. Transaction ID: {{transaction.id}}",
+    "placeholders": [
+      "greeting",
+      "transaction.amount",
+      "user.name",
+      "transaction.id"
+    ],
+    "createdAt": "2025-01-10T00:00:00.000Z",
+    "updatedAt": "2025-10-10T11:22:35.454Z"
+  },
+  {
+    "id": "sms-002",
+    "name": "Payment Sent",
+    "brand": "venmo",
+    "message": "{{payment_success}}! You sent {{transaction.amount}} to {{user.name}}. Ref: {{transaction.id}}",
+    "placeholders": [
+      "payment_success",
+      "transaction.amount",
+      "user.name",
+      "transaction.id"
+    ],
+    "createdAt": "2025-01-10T00:00:00.000Z",
+    "updatedAt": "2025-01-10T00:00:00.000Z"
+  }
+]
