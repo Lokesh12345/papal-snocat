@@ -2,20 +2,27 @@
 
 ## Overview
 
-This is a **PayPal SNOCAT System Notification Simulator** built to demonstrate skills aligned with the Production Engineer role. The system manages notification templates across multiple brands (PayPal, Venmo, Zettle, Xoom, Fastlane) with localization, QA validation, and production debugging capabilities.
+This is a **full-stack PayPal SNOCAT System Notification Manager** built from scratch to demonstrate Production Engineer capabilities through hands-on implementation rather than theoretical discussion. The system showcases end-to-end ownership of a critical production workflow: managing multi-channel notifications (email + SMS) across 5 brands (PayPal, Venmo, Zettle, Xoom, Fastlane) with 10+ language localizations, automated QA validation gates, and real-time debugging tools.
+
+**Technical Architecture:** React 18 + TypeScript frontend communicating via RESTful APIs with an Express.js backend, using file-based JSON storage (easily scalable to PostgreSQL). The system implements a **three-tier placeholder architecture** (`{{temp.component}}` for reusable UI components, `{{locale.key}}` for translations, `{{user.data}}` for runtime variables), real-time template validation with separate component and localization checks, request-to-deliverable linking for full workflow tracking, and a 5-stage QA pipeline that serves as the "last line of defense" before production deployment.
+
+**What This Demonstrates:** This isn't a toy project—it's a production-grade workflow simulator that shows I can architect scalable systems, build developer tools that catch bugs before they reach users, design APIs that scale across multiple brands, implement sophisticated validation logic, and most importantly, think like a Production Engineer who owns reliability from request intake to deployment monitoring. The SMS character counter that validates *rendered* length (not template length), the component validation system that prevents broken template references, and the analytics dashboard that identifies process bottlenecks—these are the kinds of tools I'd build on day one to make the team more efficient and production more reliable.
 
 ---
 
 ## 🎯 What This System Does
 
 ### Core Functions
-1. **Template Management** - Create/edit email & SMS notification templates
-2. **Localization** - Manage translations across 10+ languages
-3. **QA Validation** - Pre-production quality checks (the "last line of defense")
-4. **Request Queue** - Handle incoming template requests from multiple brands
-5. **Preview Tool** - Test templates with real data in different languages
-6. **Debug Simulator** - Simulate and fix production issues
-7. **Analytics** - Track performance metrics and bottlenecks
+1. **Email Template Management** - Create/edit email notification templates with HTML support
+2. **SMS Management** - Create/edit SMS notifications (160-char limit, plain text)
+3. **Component Library** - Reusable email components (buttons, headers, footers)
+4. **Localization** - Manage translations across 10+ languages
+5. **QA Validation** - Pre-production quality checks (the "last line of defense")
+6. **Request Queue** - Handle incoming template/SMS requests from multiple brands
+7. **Request Linking** - Link templates and SMS messages to specific requests
+8. **Preview Tool** - Test templates with real data in different languages
+9. **Debug Simulator** - Simulate and fix production issues
+10. **Analytics** - Track performance metrics and bottlenecks
 
 ---
 
@@ -43,7 +50,9 @@ backend/src/
 └── utils/           # Helper functions (file I/O, validation)
 
 backend/data/        # Storage (JSON files instead of database)
-├── templates/       # One folder per brand
+├── templates/       # One folder per brand (email templates)
+├── sms.json         # SMS messages (all brands)
+├── components.json  # Reusable email components
 ├── locales/         # One file per language
 └── requests/        # Request queue data
 ```
@@ -76,28 +85,114 @@ frontend/src/
 
 ## 🛠️ Key Components Explained
 
-### 1. Template System
+### 1. Email Template System
 
 **What it does:**
-- Stores notification templates with placeholders like `{{user.name}}`
+- Stores email notification templates with placeholders like `{{user.name}}`
 - Tracks versions (v1, v2, v3)
 - Supports HTML + plain text formats
+- Uses component system (`{{temp.component_id}}`) for reusable elements
 
 **Files:**
 - `backend/src/services/templateService.js` - Template operations
 - `frontend/src/components/TemplateEditor.tsx` - UI for editing
 - `frontend/src/components/PreviewPanel.tsx` - Live preview
 
-**How placeholders work:**
+**Three types of placeholders:**
 ```javascript
-Template: "Hello {{user.name}}, your payment of {{amount}} succeeded"
-Test Data: { "user.name": "John", "amount": "$50" }
-Result: "Hello John, your payment of $50 succeeded"
+// 1. Components (from components.json)
+{{temp.login_button}} → Renders button component HTML
+
+// 2. Localization keys (from locale files)
+{{greeting}} → "Hello" (en) or "Hola" (es)
+
+// 3. Dynamic data (runtime variables)
+{{user.name}} → "lokesh" (from database/test data)
+{{transaction.amount}} → "$50.00"
 ```
+
+**Real-time validation:**
+- Validates components separately from localization
+- Shows missing components count
+- Highlights missing locale keys
+- Checks dynamic data placeholders
 
 ---
 
-### 2. Localization System
+### 2. SMS Management System
+
+**What it does:**
+- Manages SMS notifications (plain text only, no HTML)
+- Enforces 160-character limit with real-time preview
+- Shares localization system with email templates
+- Supports request linking
+- Shows both raw and rendered character counts
+
+**Files:**
+- `backend/src/services/smsService.js` - SMS operations
+- `backend/src/routes/sms.js` - API endpoints
+- `frontend/src/pages/SMS.tsx` - Complete SMS management UI
+
+**Key features:**
+```javascript
+// Character counting
+Raw: 35 chars (template with placeholders)
+Rendered: 51 chars (actual SMS after replacing {{greeting}})
+
+// If rendered > 160 chars → Warning shown
+```
+
+**How it works:**
+1. Create SMS with placeholders: `{{greeting}}! You received {{transaction.amount}}`
+2. SMS uses same locale data as email templates
+3. Preview shows actual rendered text
+4. Can link to request for tracking
+5. Character warning prevents multi-part SMS messages
+
+**Why separate from email templates?**
+- Different constraints (160 chars vs unlimited)
+- Different delivery (Twilio vs SMTP)
+- Plain text only vs HTML support
+- Simpler validation rules
+
+---
+
+### 3. Component Library
+
+**What it does:**
+- Stores reusable email components (buttons, headers, footers)
+- Components injected into templates using `{{temp.component_id}}`
+- Validates component existence in real-time
+
+**Files:**
+- `backend/data/components.json` - Component storage
+- `backend/src/routes/components.js` - API endpoints
+- `frontend/src/components/ComponentLibrary.tsx` - Component manager
+
+**Example component:**
+```json
+{
+  "id": "login_button",
+  "name": "Login Button",
+  "description": "Primary CTA button for login",
+  "html": "<a href='{{login_link}}' style='...'>Log In</a>"
+}
+```
+
+**Usage in template:**
+```html
+<p>Click below to log in:</p>
+{{temp.login_button}}
+<p>Thank you!</p>
+```
+
+**Validation:**
+- If `{{temp.invalid_button}}` used → Shows "Components: 1 missing component"
+- Separate from locale validation
+
+---
+
+### 4. Localization System
 
 **What it does:**
 - Manages translations for 10 languages (en, es, fr, de, zh, ja, pt, it, ko, ar)
@@ -122,7 +217,7 @@ Result: "Hello John, your payment of $50 succeeded"
 
 ---
 
-### 3. QA Validation (Most Important!)
+### 5. QA Validation (Most Important!)
 
 **What it does:**
 This is the **"last line of defense"** before production. Catches:
@@ -150,16 +245,38 @@ This is the **"last line of defense"** before production. Catches:
 
 ---
 
-### 4. Request Queue
+### 6. Request Queue & Linking
 
 **What it does:**
 - Simulates requests from different teams (Venmo, Zettle, etc.)
 - Tracks priority (P0 = urgent, P1 = high, P2 = normal)
 - Shows status pipeline: New → In Progress → Localization → QA Review → Deployed
+- **Links requests to email templates AND SMS messages**
 
 **Files:**
 - `backend/src/routes/requests.js` - API endpoints
+- `backend/data/requests/queue.json` - Request storage
 - `frontend/src/components/RequestQueue.tsx` - UI
+
+**Request Linking:**
+```json
+{
+  "id": "REQ-12345",
+  "brand": "paypal",
+  "title": "Payment Confirmation Update",
+  "priority": "P1",
+  "status": "localization",
+  "templateId": "payment-success",  // Linked email template
+  "smsId": "sms-001"                // Linked SMS message
+}
+```
+
+**How it works:**
+1. Create request for new notification
+2. When editing email template → Select request from dropdown
+3. When editing SMS → Select request from dropdown
+4. Request shows which template/SMS fulfills it
+5. Tracks full workflow from request to deployment
 
 **Priority Levels:**
 - **P0** - Critical (security alerts, password resets) - handle immediately
@@ -168,7 +285,7 @@ This is the **"last line of defense"** before production. Catches:
 
 ---
 
-### 5. Preview Tool
+### 7. Preview Tool
 
 **What it does:**
 - Shows what the email/SMS will look like
@@ -187,7 +304,7 @@ This is the **"last line of defense"** before production. Catches:
 
 ---
 
-### 6. Debug Simulator
+### 8. Debug Simulator
 
 **What it does:**
 - Simulates 3 common production issues
@@ -204,7 +321,7 @@ This is the **"last line of defense"** before production. Catches:
 
 ---
 
-### 7. Analytics Dashboard
+### 9. Analytics Dashboard
 
 **What it does:**
 - Shows request volume
@@ -269,15 +386,28 @@ http://localhost:5173
 2. Explain: "This manages PayPal's notification templates across 5 brands"
 3. Show quick stats
 
-### Act 2: Create Template (3 min)
+### Act 2: Create Email Template (3 min)
 1. Go to Templates
 2. Select "Venmo"
 3. Click "Create New Template"
 4. Fill in:
    - Name: "Payment Alert"
    - Subject: "Payment Received - {{transaction.id}}"
-   - Body: (use sample HTML with placeholders)
-5. Save
+   - Body: (use sample HTML with placeholders and components)
+   - Use `{{temp.login_button}}` to show component system
+5. Link to a request from dropdown
+6. Save
+
+### Act 2.5: Create SMS (2 min)
+1. Go to SMS tab
+2. Select "PayPal"
+3. Click "Create New SMS"
+4. Fill in:
+   - Name: "Quick Payment Alert"
+   - Message: "{{greeting}}! You received {{transaction.amount}}"
+5. Show character counter (raw vs rendered)
+6. Link to request
+7. Save
 
 ### Act 3: Preview & Test (2 min)
 1. Click "Preview"
@@ -321,11 +451,13 @@ http://localhost:5173
 
 ### Conclusion (1 min)
 "This demonstrates my ability to:
-- Manage high-volume requests
-- Ensure quality before production
+- Manage high-volume requests across email and SMS channels
+- Build reusable component systems for efficiency
+- Ensure quality before production with validation
 - Debug live issues quickly
-- Optimize workflows
-- Handle multi-brand complexity"
+- Optimize workflows and identify bottlenecks
+- Handle multi-brand complexity
+- Link requests to deliverables for full tracking"
 
 ---
 
@@ -395,14 +527,42 @@ rm -rf backend/data
 }
 ```
 
-### Sample Request
+### Sample Request (with linking)
 ```json
 {
   "id": "REQ-12345",
-  "brand": "venmo",
-  "title": "Security Alert Template",
-  "priority": "P0",
-  "status": "qa-review"
+  "brand": "paypal",
+  "title": "Payment Confirmation Update",
+  "priority": "P1",
+  "status": "localization",
+  "templateId": "payment-success",
+  "smsId": "sms-001",
+  "createdAt": "2025-01-14T10:00:00.000Z",
+  "updatedAt": "2025-01-15T12:00:00.000Z"
+}
+```
+
+### Sample SMS
+```json
+{
+  "id": "sms-001",
+  "name": "Payment Received",
+  "brand": "paypal",
+  "message": "{{greeting}}! You received {{transaction.amount}} from {{user.name}}.",
+  "placeholders": ["greeting", "transaction.amount", "user.name"],
+  "createdAt": "2025-01-10T00:00:00.000Z",
+  "updatedAt": "2025-01-10T00:00:00.000Z"
+}
+```
+
+### Sample Component
+```json
+{
+  "id": "login_button",
+  "name": "Login Button - Primary",
+  "description": "Blue CTA button for login actions",
+  "html": "<a href='{{login_link}}' style='background:#0070ba;color:#fff;padding:12px 24px;'>Log In</a>",
+  "createdAt": "2025-01-05T00:00:00.000Z"
 }
 ```
 

@@ -109,8 +109,8 @@ Templates use `{{variable}}` syntax for dynamic content:
 
 **How it works:**
 1. Template: `"Hello {{user.name}}, your payment of {{transaction.amount}} succeeded"`
-2. Test data: `{ "user.name": "John", "transaction.amount": "$50" }`
-3. Rendered: `"Hello John, your payment of $50 succeeded"`
+2. Test data: `{ "user.name": "lokesh", "transaction.amount": "$50" }`
+3. Rendered: `"Hello lokesh, your payment of $50 succeeded"`
 
 #### How to Use
 
@@ -456,10 +456,10 @@ Manages translation files for all supported languages.
 ```
 Template body: "{{greeting}}, {{user.name}}! {{payment_success}}"
 Locale (en):   { "greeting": "Hello", "payment_success": "Your payment was successful" }
-Rendered (en): "Hello, John! Your payment was successful"
+Rendered (en): "Hello, lokesh! Your payment was successful"
 
 Locale (es):   { "greeting": "Hola", "payment_success": "Tu pago fue exitoso" }
-Rendered (es): "Hola, John! Tu pago fue exitoso"
+Rendered (es): "Hola, lokesh! Tu pago fue exitoso"
 ```
 
 #### How to Use
