@@ -3,7 +3,7 @@ import CodeMirror from '@uiw/react-codemirror';
 import { html } from '@codemirror/lang-html';
 import { oneDark } from '@codemirror/theme-one-dark';
 import type { Template, Brand, Request } from '../types';
-import { templateAPI, requestAPI } from '../services/api';
+import { templateAPI, requestAPI, localeAPI } from '../services/api';
 
 interface Props {
   brand: Brand;
@@ -15,6 +15,7 @@ interface Props {
 export default function TemplateEditor({ brand, template, onSave, onCancel }: Props) {
   const [requests, setRequests] = useState<Request[]>([]);
   const [selectedRequestId, setSelectedRequestId] = useState<string>('');
+  const [localeData, setLocaleData] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     name: template?.name || '',
     subject: template?.subject || '',
@@ -44,6 +45,7 @@ export default function TemplateEditor({ brand, template, onSave, onCancel }: Pr
 
   useEffect(() => {
     loadRequests();
+    loadLocaleData();
   }, [brand]);
 
   const loadRequests = async () => {
@@ -60,6 +62,15 @@ export default function TemplateEditor({ brand, template, onSave, onCancel }: Pr
       }
     } catch (error) {
       console.error('Error loading requests:', error);
+    }
+  };
+
+  const loadLocaleData = async () => {
+    try {
+      const response = await localeAPI.getOne('en');
+      setLocaleData(response.data);
+    } catch (error) {
+      console.error('Error loading locale data:', error);
     }
   };
 
@@ -125,10 +136,25 @@ export default function TemplateEditor({ brand, template, onSave, onCancel }: Pr
       errors.push('⚠️ Compliance: Missing {{unsubscribe_link}} placeholder');
     }
 
-    // Placeholder validation
+    // Localization validation - check for missing locale keys
     const bodyPlaceholders = htmlBody.match(/\{\{([^}]+)\}\}/g) || [];
     const subjectPlaceholders = subject.match(/\{\{([^}]+)\}\}/g) || [];
     const allPlaceholders = [...bodyPlaceholders, ...subjectPlaceholders];
+
+    const missingLocaleKeys: string[] = [];
+    const dynamicKeys = ['user.name', 'user.email', 'transaction.amount', 'transaction.id', 'unsubscribe_link'];
+
+    allPlaceholders.forEach(placeholder => {
+      const key = placeholder.replace(/\{\{|\}\}/g, '').trim();
+      // Skip dynamic data keys, only check locale keys
+      if (!dynamicKeys.includes(key) && !localeData[key]) {
+        missingLocaleKeys.push(key);
+      }
+    });
+
+    if (missingLocaleKeys.length > 0) {
+      errors.push(`⚠️ Localization: ${missingLocaleKeys.length} missing locale key(s): ${missingLocaleKeys.join(', ')}`);
+    }
 
     if (allPlaceholders.length === 0) {
       errors.push('ℹ️ Info: No placeholders detected (consider adding dynamic content)');
@@ -142,7 +168,7 @@ export default function TemplateEditor({ brand, template, onSave, onCancel }: Pr
       const errors = validateRealtime(formData.body, formData.subject);
       setValidationErrors(errors);
     }
-  }, [formData.body, formData.subject]);
+  }, [formData.body, formData.subject, localeData]);
 
   const handleSendTestEmail = async () => {
     if (!template?.id) {
